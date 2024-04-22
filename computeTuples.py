@@ -5,7 +5,7 @@ import time
 import os
 import psutil
 
-HOME = '/home/xp'
+HOME = '/home/loghorizon'
 time_interval = 1
 
 
@@ -38,6 +38,10 @@ n_ip = len(np.unique(ipsrc_csv))      # Get number of different source IPs
 # Get number of IPs for every second by multiple interval - 4s
 ssip = n_ip // time_interval
 f.close()
+
+#test bai anh Truong
+avg_bytes = np.sum(dt_bytes)
+avg_bytes = avg_bytes // 10;
 
 
 # print(entropy.value)
@@ -88,7 +92,7 @@ with open('ARP_data/ARP_Request_flowentries.csv', newline='') as f1:
     ARP_Request = list(reader)
 # #check if the path /home/xuanphuc/MITM-Detection/ARP_Broadcast/arp_broadcast.csv exists do the following or not the a
 
-path = HOME + '/Multi-Lable-Attacks-Detection/ARP_Broadcast/arp_broadcast.csv'
+path = HOME + '/Multi-Label-Attacks-Detection/ARP_Broadcast/arp_broadcast.csv'
 with open(path, newline='') as f2:
     reader = csv.reader(f2)
     # format of arp_broadcast.csv: source Mac, time stamp
@@ -130,7 +134,10 @@ mitm = 0
 tag_ddos = ''
 tag_slow_rate = ''
 tag_mitm = ''
-
+ip_spoofing = 0
+tag_ip_spoofing = ''
+if ip_spoofing != 0:
+    tag_ip_spoofing = 'IP_SPOOFING'
 if ddos != 0:
     tag_ddos = 'DDOS '
 if slow_rate != 0:
@@ -152,13 +159,39 @@ file_exists = os.path.isfile('features-file.csv')
 with open('features-file.csv', 'a') as f:
     cursor = csv.writer(f, delimiter=",")
     # cursor.writerow(headers)
-    if not file_exists:
+    if not file_exists: 
         cursor.writerow(headers)
     cursor.writerow(features)
+
+
+Deviration2flags = 0.0
+TCP_rate = 0.0
+with open('f2.csv', 'r') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    reader = list(reader)
+    Deviration2flags = reader[-1][4]
+    TCP_rate = reader[-1][5]
+features_Mitm = [aps, abps, subARP, miss_match,Deviration2flags, TCP_rate, mitm,ip_spoofing]
+headers1 = ["APS", "ABPS", "SUBARP", "MISS_MAC", "Devi","TCP_Rate","MITM", "IP_SP"]
+file_exists = os.path.isfile('features-file-Mitm.csv')
+with open('features-file-Mitm.csv', 'a') as f:
+    cursor = csv.writer(f, delimiter=",")
+    cursor.writerow(headers1)
+    if not file_exists: 
+        cursor.writerow(headers1)
+    cursor.writerow(features_Mitm)
+
 
 with open('realtime.csv', 'w') as f:
     cursor = csv.writer(f, delimiter=",")
     cursor.writerow(headers)
     cursor.writerow(features)
+
+    f.close()
+
+tests_feature = [avg_bytes]
+with open('test_feature.csv', 'w') as f:
+    cursor = csv.writer(f, delimiter=",")
+    cursor.writerow(tests_feature)
 
     f.close()

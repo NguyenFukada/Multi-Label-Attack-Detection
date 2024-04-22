@@ -2,9 +2,10 @@ import argparse
 import threading
 import time
 import random
+from random import randrange
 import socket
-
-
+from custom_intervlan import host_ips
+import subprocess
 def send_ping(host):
     while True:
         # Simulate random ping intervals
@@ -12,7 +13,6 @@ def send_ping(host):
 
         # Create a socket object
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
         # Send a ping request to the specified host
         try:
             sock.sendto(b"PING", (host, 80))
@@ -32,14 +32,20 @@ def send_ping(host):
         sock.close()
 
 
+  
 def main():
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
+
+    # parser.add_argument("-h", "--host", type=int,
+    #                     default=50, help="Starting host")
+    
     parser.add_argument("-s", "--start", type=int,
                         default=1, help="Starting host index")
     parser.add_argument("-e", "--end", type=int,
                         default=48, help="Ending host index")
     args = parser.parse_args()
+   
 
     # Get the list of hosts based on the specified range
     hosts = []
@@ -47,6 +53,8 @@ def main():
         # j is random integer from 10 to 60 withh step 10 and not equal to 30 and 40
         j = random.choice([10, 20, 50, 60])
         hosts.append(f"10.{j}.0.{i}")
+
+          
 
     while True:
         # Create and start threads for each host
