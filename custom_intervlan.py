@@ -127,14 +127,8 @@ def myNetwork():
     info('*** Running Traffic\n')
     
     for i in range(1, 49):
-        #start_traffic_test(net,host_source,i,48)
         start_traffic(net, f'h{i}', i, 48)
-        # host_source = random.choice(host_ips)
-        # hosts_des = []
-        # j = random.choice([10, 20, 50, 60])
-        # hosts_des.append(f"10.{j}.0.{i}")
-        # hosts_des_random = random.choice(hosts_des)
-        # subprocess.run(["sudo", "nping", "--tcp",host_source,hosts_des_random]) 
+       
     info('*** Done\n')
     CLI(net)
     
@@ -143,8 +137,7 @@ def myNetwork():
 if __name__ == '__main__':
     setLogLevel('info')
     myNetwork()
-    command = f'python3 send_tcp_packets.py'
-    Process(target=None, args=(command,)).start()
+
     # kill all the processes if the CLI is exited
     for p in processes:
         p.terminate()

@@ -4,7 +4,7 @@ import pandas as pd
 import time
 import os
 import psutil
-
+import datetime
 HOME = '/home/loghorizon'
 time_interval = 1
 
@@ -116,14 +116,30 @@ subARP = ARP_Reply - ARP_Request
 with open('f1.csv', 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     reader = list(reader)
-
-if int(reader[-1][-1]) > 0:
-    if subARP >= 1:
-        miss_match = 1
+    if int(reader[-1][-1]) > 0:
+        if subARP >= 1:
+            miss_match = 1
+        else:
+            miss_match = 0
     else:
         miss_match = 0
-else:
-    miss_match = 0
+
+check = True
+
+with open('result.txt', 'r') as file:
+    # Đọc nội dung của tệp và lưu vào biến content
+    content = file.read()
+    data = list(content)
+    if (os.path.isfile('result.txt')) and (os.stat('result.txt').st_size != 0):
+        if (int(data[-1][0]) >= 1):
+            check = False
+        else:
+            check = True
+    else:
+        pass
+
+
+
 # time stamp with minute:second format
 time_stamp = time.strftime("%H:%M:%S", time.localtime())
 # APS: ARP per second, ABPS: ARP broadcast per second, SUBARP: ARP reply - ARP request, MISS_MAC: miss match
@@ -136,6 +152,22 @@ tag_slow_rate = ''
 tag_mitm = ''
 ip_spoofing = 0
 tag_ip_spoofing = ''
+
+if (miss_match == 1) and (float(subARP) >= 1) and (check == False):
+    mitm = 1
+
+Deviration2flags = 0.0
+TCP_rate = 0.0
+with open('f2.csv', 'r') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    reader = list(reader)
+    Deviration2flags = reader[-1][4]    
+    TCP_rate = reader[-1][5]
+    if (float(TCP_rate) >= 2.5) and (check == False):
+        ip_spoofing = 1
+
+
+
 if ip_spoofing != 0:
     tag_ip_spoofing = 'IP_SPOOFING'
 if ddos != 0:
@@ -144,10 +176,10 @@ if slow_rate != 0:
     tag_slow_rate = 'Slow Rate '
 if mitm != 0:
     tag_mitm = 'MITM '
-if ddos == 0 and slow_rate == 0 and mitm == 0:
+if ddos == 0 and slow_rate == 0 and mitm == 0 and ip_spoofing == 0:
     tag = 'Normal'
 else:
-    tag = tag_ddos + tag_slow_rate + tag_mitm
+    tag = tag_ddos + tag_slow_rate + tag_mitm + tag_ip_spoofing
 
 headers = ["SSIP", "SDFP", "SDFB", "SFE", "RFIP",
            "CPU", "APS", "ABPS", "SUBARP", "MISS_MAC", "DDOS", "SLOW-RATE", "MITM", "TAGS"]
@@ -160,27 +192,26 @@ with open('features-file.csv', 'a') as f:
     cursor = csv.writer(f, delimiter=",")
     # cursor.writerow(headers)
     if not file_exists: 
-        cursor.writerow(headers)
-    cursor.writerow(features)
+        pass
+        # cursor.writerow(headers)
+    cursor.writerow(tag)
 
 
-Deviration2flags = 0.0
-TCP_rate = 0.0
-with open('f2.csv', 'r') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    reader = list(reader)
-    Deviration2flags = reader[-1][4]
-    TCP_rate = reader[-1][5]
-features_Mitm = [aps, abps, subARP, miss_match,Deviration2flags, TCP_rate, mitm,ip_spoofing]
-headers1 = ["APS", "ABPS", "SUBARP", "MISS_MAC", "Devi","TCP_Rate","MITM", "IP_SP"]
+features_Mitm = [aps, abps, subARP, miss_match,Deviration2flags, TCP_rate, mitm,ip_spoofing,tag]
+features_Mitm_draft = [aps, abps, subARP, miss_match,Deviration2flags, TCP_rate, datetime.datetime.now()]
+headers1 = ["APS", "ABPS", "SUBARP", "MISS_MAC", "Devi","TCP_Rate","MITM", "IP_SP","TAGS"]
 file_exists = os.path.isfile('features-file-Mitm.csv')
+
 with open('features-file-Mitm.csv', 'a') as f:
     cursor = csv.writer(f, delimiter=",")
-    cursor.writerow(headers1)
+    #cursor.writerow(headers1)
     if not file_exists: 
-        cursor.writerow(headers1)
+        pass
+        #cursor.writerow(headers1)
     cursor.writerow(features_Mitm)
 
+with open('detect.txt', 'w') as f:
+    f.write(tag)
 
 with open('realtime.csv', 'w') as f:
     cursor = csv.writer(f, delimiter=",")

@@ -12,8 +12,6 @@ def main():
         subprocess.run(["sudo", "nping", "--tcp","-c 4","10.20.0.12","10.20.0.13"])
         subprocess.run(["sudo", "nping", "--tcp","10.20.0.13","10.20.0.14"])
         subprocess.run(["sudo", "nping", "--tcp","10.20.0.14","10.20.0.15"])
-        
-
         subprocess.run(["sudo", "nping", "--tcp","-c 4","10.60.0.41","10.60.0.42"])
         subprocess.run(["sudo", "nping", "--tcp","-c 4","10.60.0.44","10.60.0.43"])
         subprocess.run(["sudo", "nping", "--tcp","10.60.0.45","10.60.0.46"])

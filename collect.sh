@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/usr/bin/python
 
 
 for i in {1..2000}
@@ -36,47 +35,34 @@ do
     ethsrc_tcp=$(awk -F "," '{split($12,e,"="); print e[2]","}' dataTCP/flowentries.csv)   
     ethdst_tcp=$(awk -F "," '{split($13,f,"="); print f[2]","}' dataTCP/flowentries.csv)      
 
-    
-    # 
-
-
-    if test -z "$packets" || test -z "$bytes" || test -z "$ipsrc" || test -z "$ipdst" || test -z "$ethdst_tcp"
+    if test -z "$packets" || test -z "$bytes" || test -z "$ipsrc" || test -z "$ipdst" 
     then
         state=0
     else
-        # echo "$packets" > data/packets.csv
-        # echo "$bytes" > data/bytes.csv
+        echo "$packets" > data/packets.csv
+        echo "$bytes" > data/bytes.csv
 
-        # echo "$ipsrc" > data/ipsrc.csv
-        # echo "$ipdst" > data/ipdst.csv
-        # echo "$ethsrc" > data/ethsrc.csv
-        # echo "$ethdst" > data/ethdst.csv
-        # echo "$eth_src_reply" > ARP_data/eth_src_reply.csv
-        # echo "$ip_dst_reply" > ARP_data/ip_dst_reply.csv
+        echo "$ipsrc" > data/ipsrc.csv
+        echo "$ipdst" > data/ipdst.csv
+        echo "$ethsrc" > data/ethsrc.csv
+        echo "$ethdst" > data/ethdst.csv
+        echo "$eth_src_reply" > ARP_data/eth_src_reply.csv
+        echo "$ip_dst_reply" > ARP_data/ip_dst_reply.csv
 
-        # echo "$ipsrc_tcp,$ethsrc_tcp" > dataTCP/ipsrc.csv
-        # echo "$ipdst_tcp" > dataTCP/ipdst.csv
-        # echo "$ethsrc_tcp" > dataTCP/ethsrc.csv
-        # echo "$ethdst_tcp" > dataTCP/ethdst.csv
+        #echo "$ipsrc_tcp,$ethsrc_tcp" > dataTCP/ipsrc.csv
+        echo "$ipdst_tcp" > dataTCP/ipdst.csv
+        echo "$ethsrc_tcp" > dataTCP/ethsrc.csv
+        echo "$ethdst_tcp" > dataTCP/ethdst.csv
         ipsrc_filtered=$(echo "$ipsrc_tcp" | grep -Ev '\b254\b')
         ethsrc_filtered=$(echo "$ethsrc_tcp" | grep -v -F -f <(echo "$ipsrc_filtered"))
         paste -d ',' <(echo "$ipsrc_tcp" | sed 's/,//g') <(echo "$ethsrc_tcp" | sed 's/,//g') >> dataTCP/ipsrc.csv
-
-           
-
-       
-       
-        
-        
-       
     fi
     python3 computeTuples.py
-    python3 Find_MAC_spoof.py
+    #python3 inspector.py
     truncate -s 0 ARP_Broadcast/arp_broadcast.csv
-    #truncate -s 0 f1.csv
+    #truncate -s 0 Mac_Spoof.csv
     # truncate -s 0 f2.csv
     # python3.11 inspector.py
     # python3.11 inspector.py
     sleep 2.5
-
 done
